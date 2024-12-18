@@ -28,7 +28,7 @@ int main(){
     hints.ai_protocol = IPPROTO_TCP;
     hints.ai_flags = AI_PASSIVE;
 
-   iResult = getaddrinfo(NULL, PORT, &hints, &result);
+   iResult = getaddrinfo(NULL, PORT, &hints, &result);//dynamic allocation of the result happens here.
    if(iResult != 0){
     std::cout << "getaddrinfo failed." << iResult << std::endl;
     WSACleanup();
@@ -43,6 +43,61 @@ int main(){
         return 1;
     }
 
-    
+    iResult = bind(listenSocket, result->ai_addr, (int) sizeof(result->ai_addrlen));
+    if(iResult != 0){
+        std::cout << "binding failed." << iResult << std::endl;
+        closesocket(listenSocket);
+        freeaddrinfo(result);
+        WSACleanup();
+        return 1;
+    }
 
+    freeaddrinfo(result);//it gets freed here.
+
+    iResult = listen(listenSocket, SOMAXCONN);
+    if(iResult != 0){
+        std::cout << "listen did not work." << iResult << std::endl;
+        closesocket(listenSocket);
+        WSACleanup();
+        return 1;
+    }
+
+    clientSocket = accept(listenSocket, NULL, NULL);
+    if(clientSocket == INVALID_SOCKET){
+        std::cout << "client socket was not accepted correctly." << clientSocket << std::endl;
+        closesocket(listenSocket);
+        WSACleanup();
+        return 1;
+    }
+
+    //client connected.
+
+    const char* sendbuf = "welcome to server";//setting string to char* needs a const char.
+    char receivebuf[500];
+    int recievelen = 500;
+
+    iResult = send(clientSocket, sendbuf,(int) strlen(sendbuf), 0);
+    if(iResult == SOCKET_ERROR){
+        std::cerr << "cound't send." << WSAGetLastError() << std::endl;
+        closesocket(clientSocket);
+        closesocket(listenSocket);
+        WSACleanup();
+        return 1;
+    }
+
+    std::cout << "message sent." << std::endl;
+
+    iResult = recv(clientSocket, receivebuf, recievelen, 0);
+    if(iResult > 0){
+        std::cout << "bytes received: " << iResult << " Message: " << receivebuf <<std::endl;
+    }else if(iResult == 0){
+        std::cout << "connection closing." << std::endl;
+    }else{
+        std::cerr << "rcv failed." << WSAGetLastError() << std::endl;
+    }
+
+    closesocket(clientSocket);
+    closesocket(listenSocket);
+    WSACleanup();
+    return 0;
 }
