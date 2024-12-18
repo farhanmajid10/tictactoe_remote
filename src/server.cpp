@@ -22,11 +22,26 @@ int main(){
         return 1;
     }
 
-    ZeroMemory(&hints, sizeof(hints));
+    memset(&hints, 0, sizeof(hints));//puts zeros from the starting point up to the number mentioned.
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_protocol = IPPROTO_TCP;
     hints.ai_flags = AI_PASSIVE;
+
+   iResult = getaddrinfo(NULL, PORT, &hints, &result);
+   if(iResult != 0){
+    std::cout << "getaddrinfo failed." << iResult << std::endl;
+    WSACleanup();
+    return 1;
+   }
+
+   listenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+    if(listenSocket == INVALID_SOCKET){
+        std::cerr << "listenSocket is not working." << std::endl;
+        freeaddrinfo(result);
+        WSACleanup();
+        return 1;
+    }
 
     
 
