@@ -43,7 +43,7 @@ int main(){
         return 1;
     }
 
-    iResult = bind(listenSocket, result->ai_addr, (int) sizeof(result->ai_addrlen));
+    iResult = bind(listenSocket, result->ai_addr, (int) result->ai_addrlen);
     if(iResult != 0){
         std::cout << "binding failed." << iResult << std::endl;
         closesocket(listenSocket);

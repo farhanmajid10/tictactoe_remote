@@ -1,0 +1,4 @@
+C:/Users/farha/OneDrive/Desktop/tictactoe_remote/build/CMakeFiles/Server.dir
+C:/Users/farha/OneDrive/Desktop/tictactoe_remote/build/CMakeFiles/Client.dir
+C:/Users/farha/OneDrive/Desktop/tictactoe_remote/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/farha/OneDrive/Desktop/tictactoe_remote/build/CMakeFiles/ZERO_CHECK.dir

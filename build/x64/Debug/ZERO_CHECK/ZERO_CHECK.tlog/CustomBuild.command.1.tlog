@@ -1,0 +1,10 @@
+^C:\USERS\FARHA\ONEDRIVE\DESKTOP\TICTACTOE_REMOTE\BUILD\CMAKEFILES\63EF1ABD0F3BA7627482276DF43E328C\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Users/farha/OneDrive/Desktop/tictactoe_remote -BC:/Users/farha/OneDrive/Desktop/tictactoe_remote/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/farha/OneDrive/Desktop/tictactoe_remote/build/tictactoe_remote.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
