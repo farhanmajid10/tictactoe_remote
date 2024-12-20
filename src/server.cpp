@@ -87,8 +87,9 @@ int main(){
 
     std::cout << "message sent." << std::endl;
 
-    iResult = recv(clientSocket, receivebuf, recievelen, 0);
+    iResult = recv(clientSocket, receivebuf, recievelen - 1, 0);
     if(iResult > 0){
+        receivebuf[iResult] = '\0';
         std::cout << "bytes received: " << iResult << " Message: " << receivebuf <<std::endl;
     }else if(iResult == 0){
         std::cout << "connection closing." << std::endl;
