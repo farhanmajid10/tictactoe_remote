@@ -2,6 +2,7 @@
 #include<server.h>
 #include<board.h>
 #include<string>
+#include<memory>
 #define PORT "8080"
 
 server::server(){
@@ -114,6 +115,7 @@ void server::run(){
         if(iResult > 0){
             receivebuf[iResult] = '\0';
             char* temp = new char[9];
+            std::shared_ptr<char[]> temp(new char[9],[](char* ptr){delete[] ptr;});
             memcpy(temp, receivebuf, 9);
             board.set_game(temp);
             board.set_turns(receivebuf[9] - '0');
