@@ -1,5 +1,7 @@
 
 #include<server.h>
+#include<board.h>
+#include<string>
 #define PORT "8080"
 
 server::server(){
@@ -66,26 +68,64 @@ void server::run(){
     char receivebuf[500];
     int recievelen = 500;
 
-    iResult = send(clientSocket, sendbuf,(int) strlen(sendbuf), 0);
-    if(iResult == SOCKET_ERROR){
-        std::cerr << "cound't send." << WSAGetLastError() << std::endl;
-        closesocket(clientSocket);
-        closesocket(listenSocket);
-        WSACleanup();
-        return;
+    Board board;
+    int player1_input;
+
+
+    while(board.get_game_won() == 0 && board.is_draw() == 0){
+        std::cout << "Enter position of next entry: " << std::endl;    
+        
+        board.printboard();
+        while(board.current_player() == 0){
+            std::cin >> player1_input;
+            if(std::cin.fail()){
+                std::cin.clear();
+                std::cin.ignore(1000,'\n');
+                std::cout << "Please enter Valid Input" << std::endl;
+                continue;
+            }else if(player1_input > 9 || player1_input <= 0){
+                std::cout << "Please enter Valid Input" << std::endl;
+                board.printboard();
+                std::cout << std::endl;
+                continue;
+            }
+            board.place_item(player1_input);
+            break;           
+        }
+        board.printboard();
+        sendbuf = board.send_ready_data();
+        std::cout << sendbuf << std::endl;
+
+
+        iResult = send(clientSocket, sendbuf,10, 0);
+        delete[] sendbuf;
+        
+        if(iResult == SOCKET_ERROR){
+            std::cerr << "cound't send." << WSAGetLastError() << std::endl;
+            closesocket(clientSocket);
+            closesocket(listenSocket);
+            WSACleanup();
+            return;
+        }
+
+        std::cout << "message sent." << std::endl;
+
+        iResult = recv(clientSocket, receivebuf, 11, 0);
+        if(iResult > 0){
+            receivebuf[iResult] = '\0';
+            char* temp = new char[9];
+            memcpy(temp, receivebuf, 9);
+            board.set_game(temp);
+            board.set_turns(receivebuf[9] - '0');
+            std::cout << "bytes received: " << iResult << " Message: " << receivebuf <<std::endl;
+        }else if(iResult == 0){
+            std::cout << "connection closing." << std::endl;
+        }else{
+            std::cerr << "rcv failed." << WSAGetLastError() << std::endl;
+        }
+        break;
     }
 
-    std::cout << "message sent." << std::endl;
-
-    iResult = recv(clientSocket, receivebuf, recievelen - 1, 0);
-    if(iResult > 0){
-        receivebuf[iResult] = '\0';
-        std::cout << "bytes received: " << iResult << " Message: " << receivebuf <<std::endl;
-    }else if(iResult == 0){
-        std::cout << "connection closing." << std::endl;
-    }else{
-        std::cerr << "rcv failed." << WSAGetLastError() << std::endl;
-    }
 
     closesocket(clientSocket);
     closesocket(listenSocket);

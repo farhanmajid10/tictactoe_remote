@@ -58,7 +58,7 @@ void client::run(){
 
     std::cout << "sent from cleint to server" << std::endl;
 
-    iResult = recv(clientSocket, receivebuf, rbuflength - 1, 0);
+    iResult = recv(clientSocket, receivebuf, 11, 0);
     if(iResult > 0){
         receivebuf[iResult] = '\0';
         std::cout << "message: " << receivebuf << std::endl;

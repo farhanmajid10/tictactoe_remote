@@ -1,8 +1,9 @@
 #include "board.h"
 #include <iostream>
+#include<string>
 
     Board::Board(){
-        game = new char [9];
+        game = new char [game_size];
         //char[] game = new char[9]
         input1 = 'O';
         input2 = 'X';
@@ -21,7 +22,7 @@
             game[index] = input2;
             turns++;
         }
-        draw++;
+        //draw++;
     }
 
     void Board::printboard(void){
@@ -33,7 +34,7 @@
             std::cout << " ";
         }
     }
-    void Board::check(void){
+    int Board::check(void){
         int count1 = 0;
         int count2 = 0;
         //rows
@@ -110,15 +111,45 @@
         if(count2 == 3){
             gamewon = 2;
         }
-        return;
+        return gamewon;
     }
 
     int Board::get_game_won(void){
         return gamewon;
     }
-    int Board::get_turn(void){
+
+    int Board::current_player(void){
         return turns % 2;
     }
-    int Board::get_draw(void){
-        return draw;
+
+    int Board::get_turns(void){
+        return turns;
+    }
+
+    int Board::is_draw(void){
+        if(turns == 9){
+            return 1;
+        }else{
+            return 0;
+        }
+    }
+
+    void Board::set_game(char* game_update){
+        delete[] game;
+        game = game_update;
+    }
+    char* Board::get_game(void){
+        return game;
+    }
+    const char* Board::send_ready_data(void){
+        //game is char*. And turns is int.
+        std::string turns_ = std::to_string(turns);
+        char* result = new char[10];
+        memcpy(result, game, 9);
+        result[9] = static_cast<char>(turns + '0');
+        const char* res = result;
+        return res;
+    }
+    void Board::set_turns(int a){
+        turns = a;
     }
