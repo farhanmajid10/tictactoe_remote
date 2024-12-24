@@ -1,25 +1,13 @@
-#include <iostream>
 
-#include<winsock2.h>
-#include<ws2tcpip.h>
-#pragma comment(lib, "ws2_32.lib")
-
+#include<server.h>
 #define PORT "8080"
 
-int main(){
-    WSADATA wsa_data;
-    SOCKET listenSocket = INVALID_SOCKET;
-    SOCKET clientSocket = INVALID_SOCKET;
-
-    struct addrinfo* result = NULL;
-    struct addrinfo hints;
-
-    int iResult;
+server::server(){
 
     iResult = WSAStartup(MAKEWORD(2,2), &wsa_data);
     if(iResult != 0){
         std::cout << "WSAStartUP failed." << std::endl;
-        return 1;
+        return;
     }
 
     memset(&hints, 0, sizeof(hints));//puts zeros from the starting point up to the number mentioned.
@@ -32,7 +20,7 @@ int main(){
    if(iResult != 0){
     std::cout << "getaddrinfo failed." << iResult << std::endl;
     WSACleanup();
-    return 1;
+    return;
    }
 
    listenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
@@ -40,7 +28,7 @@ int main(){
         std::cerr << "listenSocket is not working." << std::endl;
         freeaddrinfo(result);
         WSACleanup();
-        return 1;
+        return ;
     }
 
     iResult = bind(listenSocket, result->ai_addr, (int) result->ai_addrlen);
@@ -49,7 +37,7 @@ int main(){
         closesocket(listenSocket);
         freeaddrinfo(result);
         WSACleanup();
-        return 1;
+        return;
     }
 
     freeaddrinfo(result);//it gets freed here.
@@ -59,7 +47,7 @@ int main(){
         std::cout << "listen did not work." << iResult << std::endl;
         closesocket(listenSocket);
         WSACleanup();
-        return 1;
+        return;
     }
 
     clientSocket = accept(listenSocket, NULL, NULL);
@@ -67,9 +55,11 @@ int main(){
         std::cout << "client socket was not accepted correctly." << clientSocket << std::endl;
         closesocket(listenSocket);
         WSACleanup();
-        return 1;
+        return;
     }
+}
 
+void server::run(){
     //client connected.
 
     const char* sendbuf = "welcome to server";//setting string to char* needs a const char.
@@ -82,7 +72,7 @@ int main(){
         closesocket(clientSocket);
         closesocket(listenSocket);
         WSACleanup();
-        return 1;
+        return;
     }
 
     std::cout << "message sent." << std::endl;
@@ -100,5 +90,5 @@ int main(){
     closesocket(clientSocket);
     closesocket(listenSocket);
     WSACleanup();
-    return 0;
+    return;
 }

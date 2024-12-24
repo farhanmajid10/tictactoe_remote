@@ -1,23 +1,11 @@
-#include <iostream>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#pragma comment (lib, "ws2_32.lib")
-
+#include <client.h>
 #define PORT "8080"
 
-int main(){
-    WSADATA wsa_data;
-    SOCKET clientSocket = INVALID_SOCKET;
-
-    struct addrinfo* result = NULL;
-    struct addrinfo hints;
-
-    int iResult;
-
+client::client(){
     iResult = WSAStartup(MAKEWORD(2,2), &wsa_data);
     if(iResult != 0){
         std::cout << "WSAStartUp failed." << std::endl;
-        return 1;
+        return;
     }
 
     memset(&hints, 0,sizeof(hints));
@@ -31,7 +19,7 @@ int main(){
         std::cout << "Getaddrinfo failed." << std::endl;
         //freeaddrinfo(result);
         WSACleanup();
-        return 1;
+        return;
     }
 
     clientSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
@@ -39,7 +27,7 @@ int main(){
         std::cout << "socket init didn't work." << std::endl;
         freeaddrinfo(result);
         WSACleanup();
-        return 1;
+        return;
     } 
 
     iResult = connect(clientSocket, result->ai_addr, result->ai_addrlen);
@@ -48,11 +36,13 @@ int main(){
         freeaddrinfo(result);
         closesocket(clientSocket);
         WSACleanup();
-        return 1;
+        return;
     }
 
     std::cout << "connected" << std::endl;
+}
 
+void client::run(){
     const char* sendbuf = "Connected to server";
     char receivebuf[500];
     int rbuflength = 500;
@@ -63,7 +53,7 @@ int main(){
         freeaddrinfo(result);
         closesocket(clientSocket);
         WSACleanup();
-        return 1;
+        return;
     }
 
     std::cout << "sent from cleint to server" << std::endl;
@@ -76,12 +66,12 @@ int main(){
         std::cout << "connection closed." << std::endl;
     }else{
         std::cerr << WSAGetLastError() << std::endl;
-        return 1;
+        return;
     }
 
 
     freeaddrinfo(result);
     closesocket(clientSocket);
     WSACleanup();
-    return 0;
+    return;
 }
