@@ -2,9 +2,7 @@
 #include <iostream>
 #include<string>
 
-    Board::Board(){
-        game = new char [game_size];
-        //char[] game = new char[9]
+    Board::Board() : game(new char[game_size], [](char* ptr){delete[] ptr;}){
         input1 = 'O';
         input2 = 'X';
         turns = 0;
@@ -134,21 +132,20 @@
         }
     }
 
-    void Board::set_game(char* game_update){
-        delete[] game;
+    void Board::set_game(std::shared_ptr<char[]> game_update){
         game = game_update;
     }
     char* Board::get_game(void){
-        return game;
+        return game.get();
     }
-    const char* Board::send_ready_data(void){
+    std::shared_ptr<char[]> Board::send_ready_data(void){
         //game is char*. And turns is int.
         std::string turns_ = std::to_string(turns);
-        char* result = new char[10];
-        memcpy(result, game, 9);
+        //char* result = new char[10];
+        std::shared_ptr<char[]> result(new char[10], [](char* ptr){delete[] ptr;});
+        memcpy(result.get(), game.get(), 9);
         result[9] = static_cast<char>(turns + '0');
-        const char* res = result;
-        return res;
+        return result;
     }
     void Board::set_turns(int a){
         turns = a;

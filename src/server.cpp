@@ -73,7 +73,7 @@ void server::run(){
     int player1_input;
 
 
-    while(board.get_game_won() == 0 && board.is_draw() == 0){
+    while(board.check() == 0 && board.is_draw() == 0){
         std::cout << "Enter position of next entry: " << std::endl;    
         
         board.printboard();
@@ -87,6 +87,8 @@ void server::run(){
             }else if(player1_input > 9 || player1_input <= 0){
                 std::cout << "Please enter Valid Input" << std::endl;
                 board.printboard();
+                std::cin.clear();
+                std::cin.ignore(1000,'\n');
                 std::cout << std::endl;
                 continue;
             }
@@ -94,12 +96,13 @@ void server::run(){
             break;           
         }
         board.printboard();
-        sendbuf = board.send_ready_data();
+        auto data = board. send_ready_data();
+        sendbuf = data.get();
         std::cout << sendbuf << std::endl;
 
 
         iResult = send(clientSocket, sendbuf,10, 0);
-        delete[] sendbuf;
+        //delete[] sendbuf;
         
         if(iResult == SOCKET_ERROR){
             std::cerr << "cound't send." << WSAGetLastError() << std::endl;
@@ -114,9 +117,9 @@ void server::run(){
         iResult = recv(clientSocket, receivebuf, 11, 0);
         if(iResult > 0){
             receivebuf[iResult] = '\0';
-            char* temp = new char[9];
+            //char* temp = new char[9];
             std::shared_ptr<char[]> temp(new char[9],[](char* ptr){delete[] ptr;});
-            memcpy(temp, receivebuf, 9);
+            memcpy(temp.get(), receivebuf, 9);
             board.set_game(temp);
             board.set_turns(receivebuf[9] - '0');
             std::cout << "bytes received: " << iResult << " Message: " << receivebuf <<std::endl;
@@ -125,8 +128,18 @@ void server::run(){
         }else{
             std::cerr << "rcv failed." << WSAGetLastError() << std::endl;
         }
-        break;
+        //break;
     }
+
+    if(board.get_game_won() == 1){
+            std::cout << "Player1(S) won the game." << std::endl;
+        }else if(board.get_game_won() == 2){
+            std::cout << "player2(C) won the game." << std::endl;
+        }
+        if(board.is_draw() != 0){
+            std::cout << "Game ends in a draw!" << std::endl;
+        }
+
 
 
     closesocket(clientSocket);
